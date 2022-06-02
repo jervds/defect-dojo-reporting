@@ -3,7 +3,7 @@ use crate::defect_dojo::findings::Finding;
 pub struct ProductSummary {
     pub name: String,
     pub version: String,
-    //TODO: last scan date
+    pub last_scan_date: String,
     pub findings: Vec<Finding>,
 }
 

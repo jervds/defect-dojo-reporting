@@ -4,7 +4,6 @@ use crate::defect_dojo::products::Product;
 use crate::{
     Configuration, Engagement, Engagements, Products, Test, TestImport, TestImports, Tests,
 };
-use log::{debug, info};
 
 pub struct DefectDojo {
     pub products: Vec<Product>,
@@ -41,10 +40,26 @@ impl DefectDojo {
                 name: it.name.clone(),
                 version: self.retrieve_version_for(it.id),
                 findings: self.retrieve_findings_for(it.id),
+                last_scan_date: self.retrieve_last_scan_date_for(it.id),
             })
         });
 
         summary
+    }
+
+    fn retrieve_last_scan_date_for(&self, product_id: u32) -> String {
+        //TODO move to &str
+        let maybe_engagement = self.retrieve_engagement_for(product_id);
+        match maybe_engagement {
+            None => "".to_string(),
+            Some(engagement) => {
+                let maybe_test = self.retrieve_test_for(engagement.id);
+                match maybe_test {
+                    None => "".to_string(),
+                    Some(test) => test.updated,
+                }
+            }
+        }
     }
 
     fn retrieve_findings_for(&self, product_id: u32) -> Vec<Finding> {
