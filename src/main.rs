@@ -17,8 +17,9 @@ async fn main() -> anyhow::Result<()> {
         .into_iter()
         .for_each(|it| {
             println!(
-                "{};{};{};{}",
+                "{};{};{};{};{}",
                 it.name,
+                it.last_scan_date,
                 it.total_cve(),
                 it.cve_critical(),
                 it.cve_high()

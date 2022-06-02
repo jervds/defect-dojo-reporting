@@ -17,6 +17,7 @@ pub struct Test {
     pub id: u32,
     pub engagement: u32,
     pub test_type_name: String,
+    pub updated: String,
 }
 
 impl Tests {
