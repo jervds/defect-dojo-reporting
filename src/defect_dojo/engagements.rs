@@ -35,6 +35,7 @@ impl Engagements {
         }
 
         partial_engagements = Engagements::retrieve_partial(config, &url, "main").await?;
+        engagements.append(&mut partial_engagements.results);
         while let Some(next) = partial_engagements.next.clone() {
             partial_engagements = Engagements::retrieve_partial(config, &next, "main").await?;
             engagements.append(&mut partial_engagements.results);

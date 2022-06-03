@@ -1,5 +1,6 @@
 use crate::defect_dojo::findings::Finding;
 
+#[derive(Clone)]
 pub struct ProductSummary {
     pub name: String,
     pub version: String,
@@ -24,6 +25,15 @@ impl ProductSummary {
             .count()
     }
 
+    pub fn has_cve(&self, cve: &str) -> bool {
+        self.findings
+            .clone()
+            .into_iter()
+            .filter(|it| it.cve == cve)
+            .count()
+            > 0
+    }
+
     pub fn total_cve(&self) -> usize {
         self.findings.len()
     }
@@ -31,8 +41,8 @@ impl ProductSummary {
     pub fn cve_without_duplicates(&self) -> Vec<Finding> {
         let mut list_cve = self
             .findings
-            .clone()
-            .into_iter()
+            .iter()
+            .cloned()
             .map(|it| it.cve)
             .collect::<Vec<String>>();
         list_cve.sort();

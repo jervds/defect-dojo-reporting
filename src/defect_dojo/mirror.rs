@@ -48,61 +48,78 @@ impl DefectDojo {
         summary
     }
 
-    pub fn generate_cve_summary(&self) -> Vec<FindingsSummary> {
-        let mut all_cve: Vec<Finding> = Vec::new();
-        self.findings
-            .clone()
-            .into_iter()
-            .filter(|it| it.severity == "Critical")
+    fn findings_from_tag(products: &[ProductSummary], tag: &str) -> Vec<Finding> {
+        products
+            .iter()
+            .cloned()
+            .flat_map(|it| it.findings)
+            .filter(|it| it.severity == *tag)
             .filter(|it| !it.is_mitigated)
-            .for_each(|it| all_cve.push(it));
-        self.findings
-            .clone()
-            .into_iter()
-            .filter(|it| it.severity == "High")
-            .filter(|it| !it.is_mitigated)
-            .for_each(|it| all_cve.push(it));
+            .collect::<Vec<Finding>>()
+    }
 
+    fn remove_duplicates(all_cve: &[Finding]) -> Vec<String> {
         let mut cve_without_duplicate = all_cve
-            .clone()
-            .into_iter()
+            .iter()
+            .cloned()
             .map(|it| it.cve)
             .collect::<Vec<String>>();
         cve_without_duplicate.sort();
         cve_without_duplicate.dedup();
+        cve_without_duplicate
+    }
+
+    fn count_in_products(products: &[ProductSummary], cve: &str) -> usize {
+        products
+            .iter()
+            .cloned()
+            .filter(|it| it.has_cve(cve))
+            .count()
+    }
+
+    pub fn generate_cve_summary(&self) -> Vec<FindingsSummary> {
+        let mut all_cve: Vec<Finding> = Vec::new();
+        let product_summary = self.generate_product_summary();
+        all_cve.append(&mut DefectDojo::findings_from_tag(
+            &product_summary,
+            "Critical",
+        ));
+        all_cve.append(&mut DefectDojo::findings_from_tag(&product_summary, "High"));
+
+        let cve_without_duplicate = DefectDojo::remove_duplicates(&all_cve);
 
         let mut findings_summary: Vec<FindingsSummary> = Vec::new();
-        cve_without_duplicate.clone().into_iter().for_each(|it| {
+        cve_without_duplicate.into_iter().for_each(|it| {
             findings_summary.push(FindingsSummary {
                 cve: it.clone(),
-                impacted_projects: all_cve
-                    .clone()
-                    .into_iter()
-                    .filter(|finding| finding.cve == it.clone())
-                    .count(),
-                severity: all_cve
-                    .clone()
-                    .into_iter()
-                    .filter(|finding| finding.cve == it.clone())
-                    .collect::<Vec<Finding>>()
-                    .first()
-                    .unwrap()
-                    .severity
-                    .clone(),
+                impacted_projects: DefectDojo::count_in_products(&product_summary, &it),
+                severity: DefectDojo::retrieve_severity(&all_cve, &it),
             })
         });
         findings_summary
+    }
+
+    fn retrieve_severity(all_cve: &[Finding], cve: &str) -> String {
+        all_cve
+            .iter()
+            .cloned()
+            .filter(|finding| finding.cve == cve)
+            .collect::<Vec<Finding>>()
+            .first()
+            .unwrap()
+            .severity
+            .clone()
     }
 
     fn retrieve_last_scan_date_for(&self, product_id: u32) -> String {
         //TODO move to &str
         let maybe_engagement = self.retrieve_engagement_for(product_id);
         match maybe_engagement {
-            None => "".to_string(),
+            None => "No engagement".to_string(),
             Some(engagement) => {
                 let maybe_test = self.retrieve_test_for(engagement.id);
                 match maybe_test {
-                    None => "".to_string(),
+                    None => "No test".to_string(),
                     Some(test) => test.updated,
                 }
             }
