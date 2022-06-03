@@ -77,14 +77,13 @@ impl DefectDojo {
             .count()
     }
 
-    pub fn generate_cve_summary(&self) -> Vec<FindingsSummary> {
+    pub fn generate_cve_summary(&self, product_summary: &[ProductSummary]) -> Vec<FindingsSummary> {
         let mut all_cve: Vec<Finding> = Vec::new();
-        let product_summary = self.generate_product_summary();
         all_cve.append(&mut DefectDojo::findings_from_tag(
-            &product_summary,
+            product_summary,
             "Critical",
         ));
-        all_cve.append(&mut DefectDojo::findings_from_tag(&product_summary, "High"));
+        all_cve.append(&mut DefectDojo::findings_from_tag(product_summary, "High"));
 
         let cve_without_duplicate = DefectDojo::remove_duplicates(&all_cve);
 
@@ -92,15 +91,15 @@ impl DefectDojo {
         cve_without_duplicate.into_iter().for_each(|it| {
             findings_summary.push(FindingsSummary {
                 cve: it.clone(),
-                impacted_projects: DefectDojo::count_in_products(&product_summary, &it),
+                impacted_projects: DefectDojo::count_in_products(product_summary, &it),
                 severity: DefectDojo::retrieve_severity(&all_cve, &it),
             })
         });
         findings_summary
     }
 
-    fn retrieve_severity(all_cve: &[Finding], cve: &str) -> String {
-        all_cve
+    fn retrieve_severity(findings: &[Finding], cve: &str) -> String {
+        findings
             .iter()
             .cloned()
             .filter(|finding| finding.cve == cve)

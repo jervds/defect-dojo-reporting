@@ -12,8 +12,9 @@ mod defect_dojo;
 async fn main() -> anyhow::Result<()> {
     env_logger::init();
     let dojo = DefectDojo::load().await?;
+    let product_summary = dojo.generate_product_summary();
 
-    dojo.generate_product_summary().into_iter().for_each(|it| {
+    product_summary.iter().cloned().for_each(|it| {
         println!(
             "{};{};{};{};{}",
             it.name,
@@ -24,8 +25,10 @@ async fn main() -> anyhow::Result<()> {
         );
     });
 
-    dojo.generate_cve_summary().into_iter().for_each(|it| {
-        println!("{};{};{}", it.cve, it.severity, it.impacted_projects);
-    });
+    dojo.generate_cve_summary(&product_summary)
+        .into_iter()
+        .for_each(|it| {
+            println!("{};{};{}", it.cve, it.severity, it.impacted_projects);
+        });
     Ok(())
 }
