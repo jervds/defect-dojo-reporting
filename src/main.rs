@@ -11,19 +11,21 @@ mod defect_dojo;
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     env_logger::init();
-    DefectDojo::load()
-        .await?
-        .generate_product_summary()
-        .into_iter()
-        .for_each(|it| {
-            println!(
-                "{};{};{};{};{}",
-                it.name,
-                it.last_scan_date,
-                it.total_cve(),
-                it.cve_critical(),
-                it.cve_high()
-            );
-        });
+    let dojo = DefectDojo::load().await?;
+
+    dojo.generate_product_summary().into_iter().for_each(|it| {
+        println!(
+            "{};{};{};{};{}",
+            it.name,
+            it.last_scan_date,
+            it.total_cve(),
+            it.cve_critical(),
+            it.cve_high()
+        );
+    });
+
+    dojo.generate_cve_summary().into_iter().for_each(|it| {
+        println!("{};{};{}", it.cve, it.severity, it.impacted_projects);
+    });
     Ok(())
 }
