@@ -1,6 +1,7 @@
 pub mod defect_dojo;
 pub mod engagements;
 pub mod findings;
+pub mod findings_summary;
 pub mod product_summary;
 pub mod products;
 pub mod test_imports;

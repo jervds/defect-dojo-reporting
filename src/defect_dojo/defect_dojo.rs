@@ -1,4 +1,5 @@
 use crate::defect_dojo::findings::{Finding, Findings};
+use crate::defect_dojo::findings_summary::FindingsSummary;
 use crate::defect_dojo::product_summary::ProductSummary;
 use crate::defect_dojo::products::Product;
 use crate::{
@@ -45,6 +46,52 @@ impl DefectDojo {
         });
 
         summary
+    }
+
+    pub fn generate_cve_summary(&self) -> Vec<FindingsSummary> {
+        let mut all_cve: Vec<Finding> = Vec::new();
+        self.findings
+            .clone()
+            .into_iter()
+            .filter(|it| it.severity == "Critical")
+            .filter(|it| it.is_mitigated == false)
+            .for_each(|it| all_cve.push(it));
+        self.findings
+            .clone()
+            .into_iter()
+            .filter(|it| it.severity == "High")
+            .filter(|it| it.is_mitigated == false)
+            .for_each(|it| all_cve.push(it));
+
+        let mut cve_without_duplicate = all_cve
+            .clone()
+            .into_iter()
+            .map(|it| it.cve)
+            .collect::<Vec<String>>();
+        cve_without_duplicate.sort();
+        cve_without_duplicate.dedup();
+
+        let mut findings_summary: Vec<FindingsSummary> = Vec::new();
+        cve_without_duplicate.clone().into_iter().for_each(|it| {
+            findings_summary.push(FindingsSummary {
+                cve: it.clone(),
+                impacted_projects: all_cve
+                    .clone()
+                    .into_iter()
+                    .filter(|finding| finding.cve == it.clone())
+                    .count(),
+                severity: all_cve
+                    .clone()
+                    .into_iter()
+                    .filter(|finding| finding.cve == it.clone())
+                    .collect::<Vec<Finding>>()
+                    .first()
+                    .unwrap()
+                    .severity
+                    .clone(),
+            })
+        });
+        findings_summary
     }
 
     fn retrieve_last_scan_date_for(&self, product_id: u32) -> String {

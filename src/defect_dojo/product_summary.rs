@@ -28,7 +28,7 @@ impl ProductSummary {
         self.findings.len()
     }
 
-    fn cve_without_duplicates(&self) -> Vec<Finding> {
+    pub fn cve_without_duplicates(&self) -> Vec<Finding> {
         let mut list_cve = self
             .findings
             .clone()
