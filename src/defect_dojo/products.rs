@@ -24,10 +24,7 @@ impl Products {
         let client = reqwest::Client::new();
         let body = client
             .get(url)
-            .header(
-                AUTHORIZATION,
-                format!("Token {}", &config.defect_dojo_token),
-            )
+            .header(AUTHORIZATION, format!("Token {}", config.defect_dojo_token))
             .query(&[("limit", "1000")])
             .send()
             .await?
