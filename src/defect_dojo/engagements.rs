@@ -25,19 +25,18 @@ impl Engagements {
         let url = format!("{}{}", config.defect_dojo_url, API_ENGAGEMENTS);
 
         let mut engagements: Vec<Engagement> = Vec::new();
-        let mut partial_engagements =
-            Engagements::retrieve_partial(&config, &url, "master").await?;
+        let mut partial_engagements = Engagements::retrieve_partial(config, &url, "master").await?;
         engagements.append(&mut partial_engagements.results);
 
         //TODO handle the ugly clone
         while let Some(next) = partial_engagements.next.clone() {
-            partial_engagements = Engagements::retrieve_partial(&config, &next, "master").await?;
+            partial_engagements = Engagements::retrieve_partial(config, &next, "master").await?;
             engagements.append(&mut partial_engagements.results);
         }
 
-        partial_engagements = Engagements::retrieve_partial(&config, &url, "main").await?;
+        partial_engagements = Engagements::retrieve_partial(config, &url, "main").await?;
         while let Some(next) = partial_engagements.next.clone() {
-            partial_engagements = Engagements::retrieve_partial(&config, &next, "main").await?;
+            partial_engagements = Engagements::retrieve_partial(config, &next, "main").await?;
             engagements.append(&mut partial_engagements.results);
         }
 
@@ -57,10 +56,7 @@ impl Engagements {
         let client = reqwest::Client::new();
         let body = client
             .get(url)
-            .header(
-                AUTHORIZATION,
-                format!("Token {}", &config.defect_dojo_token),
-            )
+            .header(AUTHORIZATION, format!("Token {}", config.defect_dojo_token))
             .query(&[("limit", "500"), ("version", tag)])
             .send()
             .await?

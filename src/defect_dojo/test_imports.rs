@@ -24,12 +24,12 @@ impl TestImports {
         let url = format!("{}{}", config.defect_dojo_url, API_TEST_IMPORT);
 
         let mut tests: Vec<TestImport> = Vec::new();
-        let mut partial_tests = TestImports::retrieve_partial(&config, &url).await?;
+        let mut partial_tests = TestImports::retrieve_partial(config, &url).await?;
         tests.append(&mut partial_tests.results);
 
         //TODO handle the ugly clone
         while let Some(next) = partial_tests.next.clone() {
-            partial_tests = TestImports::retrieve_partial(&config, &next).await?;
+            partial_tests = TestImports::retrieve_partial(config, &next).await?;
             tests.append(&mut partial_tests.results);
         }
 
@@ -45,10 +45,7 @@ impl TestImports {
         let client = reqwest::Client::new();
         let body = client
             .get(url)
-            .header(
-                AUTHORIZATION,
-                format!("Token {}", &config.defect_dojo_token),
-            )
+            .header(AUTHORIZATION, format!("Token {}", config.defect_dojo_token))
             .query(&[("limit", "500")])
             .send()
             .await?

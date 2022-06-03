@@ -54,13 +54,13 @@ impl DefectDojo {
             .clone()
             .into_iter()
             .filter(|it| it.severity == "Critical")
-            .filter(|it| it.is_mitigated == false)
+            .filter(|it| !it.is_mitigated)
             .for_each(|it| all_cve.push(it));
         self.findings
             .clone()
             .into_iter()
             .filter(|it| it.severity == "High")
-            .filter(|it| it.is_mitigated == false)
+            .filter(|it| !it.is_mitigated)
             .for_each(|it| all_cve.push(it));
 
         let mut cve_without_duplicate = all_cve
@@ -121,19 +121,16 @@ impl DefectDojo {
                         let maybe_imports = self.retrieve_test_import_for(test.id);
                         match maybe_imports {
                             None => Vec::new(),
-                            Some(import) => {
-                                let findings_ids = import
-                                    .into_iter()
-                                    .flat_map(|it| it.findings_affected)
-                                    .flat_map(|id| {
-                                        self.findings
-                                            .clone()
-                                            .into_iter()
-                                            .filter(move |it| it.id == id)
-                                    })
-                                    .collect::<Vec<Finding>>();
-                                findings_ids
-                            }
+                            Some(import) => import
+                                .into_iter()
+                                .flat_map(|it| it.findings_affected)
+                                .flat_map(|id| {
+                                    self.findings
+                                        .clone()
+                                        .into_iter()
+                                        .filter(move |it| it.id == id)
+                                })
+                                .collect::<Vec<Finding>>(),
                         }
                     }
                 }
@@ -173,7 +170,7 @@ impl DefectDojo {
         let maybe_engagement = self.retrieve_engagement_for(product_id);
         match maybe_engagement {
             None => "None".to_string(),
-            Some(engagement) => engagement.version.clone(),
+            Some(engagement) => engagement.version,
         }
     }
 

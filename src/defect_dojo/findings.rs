@@ -34,12 +34,12 @@ impl Findings {
     pub async fn retrieve_all(config: &Configuration) -> anyhow::Result<Findings> {
         let url = format!("{}{}", config.defect_dojo_url, API_FINDINGS);
         let mut findings: Vec<Finding> = Vec::new();
-        let mut partial_findings = Findings::retrieve_partial(&config, &url).await?;
+        let mut partial_findings = Findings::retrieve_partial(config, &url).await?;
         findings.append(&mut partial_findings.results);
 
         //TODO handle the ugly clone
         while let Some(next) = partial_findings.next.clone() {
-            partial_findings = Findings::retrieve_partial(&config, &next).await?;
+            partial_findings = Findings::retrieve_partial(config, &next).await?;
             findings.append(&mut partial_findings.results);
         }
 
@@ -55,10 +55,7 @@ impl Findings {
         let client = reqwest::Client::new();
         let body = client
             .get(url)
-            .header(
-                AUTHORIZATION,
-                format!("Token {}", &config.defect_dojo_token),
-            )
+            .header(AUTHORIZATION, format!("Token {}", config.defect_dojo_token))
             .query(&[("limit", "500")])
             .send()
             .await?

@@ -1,6 +1,6 @@
 use crate::config::configuration::Configuration;
-use crate::defect_dojo::defect_dojo::DefectDojo;
 use crate::defect_dojo::engagements::{Engagement, Engagements};
+use crate::defect_dojo::mirror::DefectDojo;
 use crate::defect_dojo::products::Products;
 use crate::defect_dojo::test_imports::{TestImport, TestImports};
 use crate::defect_dojo::tests::{Test, Tests};

@@ -12,7 +12,7 @@ impl ProductSummary {
         self.cve_without_duplicates()
             .into_iter()
             .filter(|it| it.severity == "High")
-            .filter(|it| it.is_mitigated == false)
+            .filter(|it| !it.is_mitigated)
             .count()
     }
 
@@ -20,7 +20,7 @@ impl ProductSummary {
         self.cve_without_duplicates()
             .into_iter()
             .filter(|it| it.severity == "Critical")
-            .filter(|it| it.is_mitigated == false)
+            .filter(|it| !it.is_mitigated)
             .count()
     }
 
