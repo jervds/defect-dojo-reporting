@@ -7,7 +7,7 @@ use serde::Serialize;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Engagements {
-    pub count: u32,
+    pub count: usize,
     pub results: Vec<Engagement>,
     pub next: Option<String>,
 }
@@ -42,7 +42,7 @@ impl Engagements {
         }
 
         Ok(Engagements {
-            count: engagements.len() as u32, //TODO move to usize
+            count: engagements.len(),
             results: engagements,
             next: None,
         })
