@@ -29,6 +29,7 @@ impl ProductSummary {
         self.findings
             .clone()
             .into_iter()
+            .filter(|it| !it.is_mitigated)
             .filter(|it| it.cve == cve)
             .count()
             > 0
