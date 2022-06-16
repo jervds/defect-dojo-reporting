@@ -1,6 +1,8 @@
 use crate::defect_dojo::findings::Finding;
+use serde::Deserialize;
+use serde::Serialize;
 
-#[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ProductSummary {
     pub name: String,
     pub version: String,
