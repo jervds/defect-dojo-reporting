@@ -90,7 +90,7 @@ impl DefectDojo {
         let mut findings_summary: Vec<FindingsSummary> = Vec::new();
         cve_without_duplicate.into_iter().for_each(|it| {
             findings_summary.push(FindingsSummary {
-                cve: it.clone(),
+                finding: it.clone(),
                 impacted_projects: DefectDojo::count_in_products(product_summary, &it),
                 severity: DefectDojo::retrieve_severity(&all_cve, &it),
             })

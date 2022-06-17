@@ -1,3 +1,5 @@
+extern crate core;
+
 use crate::config::configuration::Configuration;
 use crate::connectors::microsoft_teams::post_report_per_finding;
 use crate::defect_dojo::engagements::{Engagement, Engagements};
@@ -30,7 +32,7 @@ async fn main() -> anyhow::Result<()> {
     dojo.generate_cve_summary(&product_summary)
         .into_iter()
         .for_each(|it| {
-            println!("{};{};{}", it.cve, it.severity, it.impacted_projects);
+            println!("{};{};{}", it.finding, it.severity, it.impacted_projects);
         });
 
     post_report_per_finding(&dojo.generate_cve_summary(&product_summary)).await?;
