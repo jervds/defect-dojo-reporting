@@ -2,12 +2,12 @@
 ## Configuration
 Configuration loaded from environment variables:
 
-| Variable                 | Description                                                                      | Example                       |
-|--------------------------|----------------------------------------------------------------------------------|:------------------------------|
-| DEFECT_DOJO_TOKEN        | The token being used to connect to defect dojo                                   | f1313211234566780b9316546900a |
-| DEFECT_DOJO_URL          | The url on which defect dojo API are exposed                                     | https://www.defectdojo.sample |
-| RUST_LOG                 | The log level. See [env_log](https://docs.rs/env_logger/0.9.0/env_logger/) crate | info                          |
-| PROJECT_REPORT_TEAMS_URL | The url for webhook of teams                                                     | ...                           |
+| Variable                  | Description                                                                      | Example                       |
+|---------------------------|----------------------------------------------------------------------------------|:------------------------------|
+| DEFECT_DOJO_TOKEN         | The token being used to connect to defect dojo                                   | f1313211234566780b9316546900a |
+| DEFECT_DOJO_URL           | The url on which defect dojo API are exposed                                     | https://www.defectdojo.sample |
+| RUST_LOG                  | The log level. See [env_log](https://docs.rs/env_logger/0.9.0/env_logger/) crate | info                          |
+| FINDINGS_REPORT_TEAMS_URL | The url for webhook of teams                                                     | ...                           |
 
 ## Output
 Currently, the output is only at log levels. It is structured as following:
@@ -20,5 +20,29 @@ product_name;last_scan_date;total_cve;cve_critical;cve_critical
 cve;severity;number_of_occurences
 ```
 
-## Teams integration
-TODO
+## Exporting repport
+The finding report can be exported with the following format:
+```json
+{
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "finding": {
+                "type": "string"
+            },
+            "severity": {
+                "type": "string"
+            },
+            "impacted_projects": {
+                "type": "integer"
+            }
+        },
+        "required": [
+            "finding",
+            "impacted_projects",
+            "severity"
+        ]
+    }
+}
+```
