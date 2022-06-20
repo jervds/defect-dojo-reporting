@@ -56,7 +56,7 @@ impl Findings {
         let body = client
             .get(url)
             .header(AUTHORIZATION, format!("Token {}", config.defect_dojo_token))
-            .query(&[("limit", "500")])
+            .query(&[("not_tag", "suppressed"), ("limit", "500")])
             .send()
             .await?
             .text()
