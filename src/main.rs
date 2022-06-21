@@ -17,6 +17,7 @@ async fn main() -> anyhow::Result<()> {
     env_logger::init();
     let dojo = DefectDojo::load().await?;
     let product_summary = dojo.generate_product_summary();
+    let cve_summary = dojo.generate_cve_summary(&product_summary);
 
     product_summary.iter().cloned().for_each(|it| {
         println!(
@@ -29,12 +30,10 @@ async fn main() -> anyhow::Result<()> {
         );
     });
 
-    dojo.generate_cve_summary(&product_summary)
-        .into_iter()
-        .for_each(|it| {
-            println!("{};{};{}", it.finding, it.severity, it.impacted_projects);
-        });
+    cve_summary.iter().clone().for_each(|it| {
+        println!("{};{};{}", it.finding, it.severity, it.impacted_projects);
+    });
 
-    post_report_per_finding(&dojo.generate_cve_summary(&product_summary)).await?;
+    post_report_per_finding(&cve_summary).await?;
     Ok(())
 }
