@@ -18,7 +18,6 @@ pub struct Finding {
     #[serde(deserialize_with = "deserialize_null_default")]
     pub cve: String,
     pub severity: String,
-    pub is_mitigated: bool,
 }
 
 fn deserialize_null_default<'de, D, T>(deserializer: D) -> Result<T, D::Error>
@@ -56,7 +55,11 @@ impl Findings {
         let body = client
             .get(url)
             .header(AUTHORIZATION, format!("Token {}", config.defect_dojo_token))
-            .query(&[("not_tag", "suppressed"), ("limit", "500")])
+            .query(&[
+                ("not_tag", "suppressed"),
+                ("limit", "500"),
+                ("is_mitigated", "false"),
+            ])
             .send()
             .await?
             .text()

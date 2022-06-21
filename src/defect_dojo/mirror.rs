@@ -5,6 +5,7 @@ use crate::defect_dojo::products::Product;
 use crate::{
     Configuration, Engagement, Engagements, Products, Test, TestImport, TestImports, Tests,
 };
+use log::{debug, info};
 
 pub struct DefectDojo {
     pub products: Vec<Product>,
@@ -54,7 +55,6 @@ impl DefectDojo {
             .cloned()
             .flat_map(|it| it.findings)
             .filter(|it| it.severity == *tag)
-            .filter(|it| !it.is_mitigated)
             .collect::<Vec<Finding>>()
     }
 
@@ -70,6 +70,12 @@ impl DefectDojo {
     }
 
     fn count_in_products(products: &[ProductSummary], cve: &str) -> usize {
+        products
+            .iter()
+            .cloned()
+            .filter(|it| it.has_cve(cve))
+            .for_each(|it| info!("CVE {} found in {}", cve, it.name));
+
         products
             .iter()
             .cloned()
@@ -141,12 +147,13 @@ impl DefectDojo {
                                 .into_iter()
                                 .flat_map(|it| it.findings_affected)
                                 .flat_map(|id| {
+                                    debug!("Product id: {} - engagment: {} - test {} - finding id: {} ",product_id, engagement.id, test.id, id);
                                     self.findings
                                         .clone()
                                         .into_iter()
                                         .filter(move |it| it.id == id)
                                 })
-                                .collect::<Vec<Finding>>(),
+                                .collect::<Vec<Finding>>()
                         }
                     }
                 }

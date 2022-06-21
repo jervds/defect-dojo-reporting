@@ -15,7 +15,6 @@ impl ProductSummary {
         self.cve_without_duplicates()
             .into_iter()
             .filter(|it| it.severity == "High")
-            .filter(|it| !it.is_mitigated)
             .count()
     }
 
@@ -23,7 +22,6 @@ impl ProductSummary {
         self.cve_without_duplicates()
             .into_iter()
             .filter(|it| it.severity == "Critical")
-            .filter(|it| !it.is_mitigated)
             .count()
     }
 
@@ -31,7 +29,6 @@ impl ProductSummary {
         self.findings
             .clone()
             .into_iter()
-            .filter(|it| !it.is_mitigated)
             .filter(|it| it.cve == cve)
             .count()
             > 0
@@ -62,7 +59,6 @@ impl ProductSummary {
                 id: finding[0].id,
                 cve: finding[0].cve.clone(),
                 severity: finding[0].severity.clone(),
-                is_mitigated: finding[0].is_mitigated,
             })
         });
         findings
