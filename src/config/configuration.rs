@@ -47,14 +47,13 @@ mod tests {
         env::set_var(ENV_DEFECT_DOJO_TOKEN, "123456");
         env::set_var(ENV_DEFECT_DOJO_URL, "https://www.blabla.com");
         env::set_var(ENV_FINDINGS_REPORT_TEAMS_URL, "https://www.blubla.com");
-        assert_eq!(Configuration::load().is_some(), true);
-        assert_eq!(Configuration::load().unwrap().defect_dojo_token, "123456");
+        let maybe_configuration = Configuration::load();
+        assert_eq!(maybe_configuration.is_some(), true);
+        let configuration = maybe_configuration.unwrap();
+        assert_eq!(configuration.defect_dojo_token, "123456");
+        assert_eq!(configuration.defect_dojo_url, "https://www.blabla.com");
         assert_eq!(
-            Configuration::load().unwrap().defect_dojo_url,
-            "https://www.blabla.com"
-        );
-        assert_eq!(
-            Configuration::load().unwrap().findings_report_teams_url,
+            configuration.findings_report_teams_url,
             "https://www.blubla.com"
         );
     }
