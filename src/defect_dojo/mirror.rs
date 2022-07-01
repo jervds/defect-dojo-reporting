@@ -211,3 +211,197 @@ impl DefectDojo {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn remove_duplicates_should_correctly_remove_duplicates() {
+        assert_eq!(
+            DefectDojo::remove_duplicates(&default_findings_list()).len(),
+            2
+        );
+        assert_eq!(
+            DefectDojo::remove_duplicates(&default_findings_list())[0],
+            "CVE-0000-1"
+        );
+        assert_eq!(
+            DefectDojo::remove_duplicates(&default_findings_list())[1],
+            "CVE-0000-2"
+        );
+    }
+
+    #[test]
+    fn count_in_product_should_return_number_of_times_a_finding_appears_in_all_products_without_duplicates(
+    ) {
+        assert_eq!(
+            DefectDojo::count_in_products(&default_product_summary(), "CVE-0000-0"),
+            0
+        );
+        assert_eq!(
+            DefectDojo::count_in_products(&default_product_summary(), "CVE-0000-1"),
+            1
+        );
+        assert_eq!(
+            DefectDojo::count_in_products(&default_product_summary(), "CVE-0000-2"),
+            1
+        );
+    }
+
+    #[test]
+    fn retrieve_severity_should_return_finding_severity() {
+        assert_eq!(
+            DefectDojo::retrieve_severity(&default_findings_list(), "CVE-0000-1"),
+            "High"
+        );
+        assert_eq!(
+            DefectDojo::retrieve_severity(&default_findings_list(), "CVE-0000-2"),
+            "Critical"
+        );
+    }
+
+    #[test]
+    fn retrieve_version_for_should_return_correct_version() {
+        assert_eq!(default_dojo().retrieve_version_for(0), "version0");
+        assert_eq!(default_dojo().retrieve_version_for(1), "version1");
+    }
+
+    #[test]
+    fn retrieve_last_scan_date_should_return_correct_date() {
+        assert_eq!(default_dojo().retrieve_last_scan_date_for(0), "01/01/01");
+        assert_eq!(default_dojo().retrieve_last_scan_date_for(1), "02/01/01");
+    }
+
+    #[test]
+    fn generate_product_summary_should_generate_expected_summary() {
+        let summary = default_dojo().generate_product_summary();
+        assert_eq!(summary[0].name, "test_product_0");
+        assert_eq!(summary[0].last_scan_date, "01/01/01");
+        assert_eq!(summary[0].version, "version0");
+        assert_eq!(summary[0].findings[0].id, 0);
+        assert_eq!(summary[1].name, "test_product_1");
+        assert_eq!(summary[1].last_scan_date, "02/01/01");
+        assert_eq!(summary[1].version, "version1");
+        assert_eq!(summary[1].findings[0].id, 1);
+        assert_eq!(summary[1].findings[1].id, 2);
+    }
+
+    #[test]
+    fn generate_cve_summary_should_generate_expected_summary() {
+        let product_summary = default_dojo().generate_product_summary();
+        let cve_summary = default_dojo().generate_cve_summary(&product_summary);
+        assert_eq!(cve_summary[0].finding, "CVE-0000-1");
+        assert_eq!(cve_summary[0].severity, "High");
+        assert_eq!(cve_summary[0].impacted_projects, 2);
+        assert_eq!(cve_summary[1].finding, "CVE-0000-2");
+        assert_eq!(cve_summary[1].severity, "Critical");
+        assert_eq!(cve_summary[1].impacted_projects, 1);
+    }
+
+    fn default_product_summary() -> Vec<ProductSummary> {
+        vec![ProductSummary {
+            name: String::from("sample product"),
+            version: String::from("master"),
+            last_scan_date: String::from("01-01-2019"),
+            findings: default_findings_list(),
+        }]
+    }
+
+    fn default_findings_list() -> Vec<Finding> {
+        vec![
+            Finding {
+                id: 0,
+                cve: String::from("CVE-0000-1"),
+                severity: String::from("High"),
+            },
+            Finding {
+                id: 1,
+                cve: String::from("CVE-0000-1"),
+                severity: String::from("High"),
+            },
+            Finding {
+                id: 2,
+                cve: String::from("CVE-0000-2"),
+                severity: String::from("Critical"),
+            },
+        ]
+    }
+
+    fn default_product_list() -> Vec<Product> {
+        vec![
+            Product {
+                id: 0,
+                name: String::from("test_product_0"),
+            },
+            Product {
+                id: 1,
+                name: String::from("test_product_1"),
+            },
+        ]
+    }
+
+    fn default_engagement_list() -> Vec<Engagement> {
+        vec![
+            Engagement {
+                id: 0,
+                name: String::from("engagement for product 0"),
+                version: String::from("version0"),
+                product: 0,
+            },
+            Engagement {
+                id: 1,
+                name: String::from("engagement for product 1"),
+                version: String::from("version1"),
+                product: 1,
+            },
+        ]
+    }
+
+    fn default_test_list() -> Vec<Test> {
+        vec![
+            Test {
+                id: 0,
+                engagement: 0,
+                test_type_name: String::from("dojo"),
+                updated: String::from("01/01/01"),
+            },
+            Test {
+                id: 1,
+                engagement: 1,
+                test_type_name: String::from("dojo"),
+                updated: String::from("02/01/01"),
+            },
+        ]
+    }
+
+    fn default_test_import() -> Vec<TestImport> {
+        vec![
+            TestImport {
+                id: 0,
+                test: 0,
+                findings_affected: vec![0],
+            },
+            TestImport {
+                id: 1,
+                test: 1,
+                findings_affected: vec![1],
+            },
+            TestImport {
+                id: 2,
+                test: 1,
+                findings_affected: vec![2],
+            },
+        ]
+    }
+
+    fn default_dojo() -> DefectDojo {
+        DefectDojo {
+            products: default_product_list(),
+            engagements: default_engagement_list(),
+            tests: default_test_list(),
+            test_imports: default_test_import(),
+            findings: default_findings_list(),
+        }
+    }
+}

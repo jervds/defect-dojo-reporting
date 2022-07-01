@@ -64,3 +64,83 @@ impl ProductSummary {
         findings
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn cve_high_should_return_correct_number_of_cve() {
+        assert_eq!(default_product_summary().cve_high(), 3)
+    }
+
+    #[test]
+    fn cve_critical_should_return_correct_number_of_cve() {
+        assert_eq!(default_product_summary().cve_critical(), 2)
+    }
+
+    #[test]
+    fn has_cve_should_return_false_when_cve_is_not_in_list_of_findings() {
+        assert_eq!(default_product_summary().has_cve("UNKNOWN"), false)
+    }
+
+    #[test]
+    fn has_cve_should_return_true_when_cve_is_in_list_of_findings() {
+        assert_eq!(default_product_summary().has_cve("CVE-SAMPLE-0001"), true)
+    }
+
+    #[test]
+    fn cve_without_duplicate_should_remove_duplicates() {
+        let findings_without_duplicate = default_product_summary().cve_without_duplicates();
+        let cve_duplicated_count = findings_without_duplicate
+            .iter()
+            .map(|it| it.cve.clone())
+            .filter(|it| it == "CVE-SAMPLE-0001")
+            .count();
+        assert_eq!(cve_duplicated_count, 1)
+    }
+
+    fn default_product_summary() -> ProductSummary {
+        ProductSummary {
+            name: String::from("sample product"),
+            version: String::from("master"),
+            last_scan_date: String::from("01-01-2019"),
+            findings: default_findings_list(),
+        }
+    }
+
+    fn default_findings_list() -> Vec<Finding> {
+        vec![
+            Finding {
+                id: 0,
+                cve: String::from("CVE-SAMPLE-0001"),
+                severity: String::from("High"),
+            },
+            Finding {
+                id: 1,
+                cve: String::from("CVE-SAMPLE-0002"),
+                severity: String::from("Critical"),
+            },
+            Finding {
+                id: 2,
+                cve: String::from("CVE-SAMPLE-0003"),
+                severity: String::from("High"),
+            },
+            Finding {
+                id: 3,
+                cve: String::from("CVE-SAMPLE-0004"),
+                severity: String::from("High"),
+            },
+            Finding {
+                id: 4,
+                cve: String::from("CVE-SAMPLE-0005"),
+                severity: String::from("Critical"),
+            },
+            Finding {
+                id: 5,
+                cve: String::from("CVE-SAMPLE-0001"),
+                severity: String::from("High"),
+            },
+        ]
+    }
+}
