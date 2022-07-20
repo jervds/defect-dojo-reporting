@@ -7,7 +7,7 @@ Configuration loaded from environment variables:
 | DEFECT_DOJO_TOKEN         | The token being used to connect to defect dojo                                   | f1313211234566780b9316546900a |
 | DEFECT_DOJO_URL           | The url on which defect dojo API are exposed                                     | https://www.defectdojo.sample |
 | RUST_LOG                  | The log level. See [env_log](https://docs.rs/env_logger/0.9.0/env_logger/) crate | info                          |
-| FINDINGS_REPORT_TEAMS_URL | The url for webhook of teams                                                     | ...                           |
+| FINDINGS_REPORT_TEAMS_URL | The url for webhook of teams. This variable is optional.                         | ...                           |
 
 ## Output
 Currently, the output is only at log levels. It is structured as following:

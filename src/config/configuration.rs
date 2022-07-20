@@ -7,7 +7,7 @@ use crate::config::{ENV_DEFECT_DOJO_TOKEN, ENV_DEFECT_DOJO_URL, ENV_FINDINGS_REP
 pub struct Configuration {
     pub defect_dojo_url: String,
     pub defect_dojo_token: String,
-    pub findings_report_teams_url: String,
+    pub findings_report_teams_url: Option<String>,
 }
 
 impl Configuration {
@@ -29,7 +29,10 @@ impl Configuration {
     fn from_env() -> anyhow::Result<Configuration> {
         let _defect_dojo_token = env::var(ENV_DEFECT_DOJO_TOKEN)?;
         let _defect_dojo_url = env::var(ENV_DEFECT_DOJO_URL)?;
-        let _findings_report_teams_url = env::var(ENV_FINDINGS_REPORT_TEAMS_URL)?;
+        let _findings_report_teams_url = match env::var(ENV_FINDINGS_REPORT_TEAMS_URL) {
+            Ok(env_var) => Some(env_var),
+            Err(_) => None,
+        };
         Ok(Configuration {
             defect_dojo_url: _defect_dojo_url,
             defect_dojo_token: _defect_dojo_token,
@@ -52,10 +55,24 @@ mod tests {
         let configuration = maybe_configuration.unwrap();
         assert_eq!(configuration.defect_dojo_token, "123456");
         assert_eq!(configuration.defect_dojo_url, "https://www.blabla.com");
+        assert_eq!(configuration.findings_report_teams_url.is_some(), true);
         assert_eq!(
-            configuration.findings_report_teams_url,
+            configuration.findings_report_teams_url.unwrap(),
             "https://www.blubla.com"
         );
+    }
+
+    #[test]
+    fn load_config_should_return_default_none_for_teams_url_when_not_defined() {
+        // if environment variable is not set, the remove_var can panic.
+        env::set_var(ENV_DEFECT_DOJO_TOKEN, "123456");
+        env::set_var(ENV_DEFECT_DOJO_URL, "https://www.blabla.com");
+        env::set_var(ENV_FINDINGS_REPORT_TEAMS_URL, "https://www.blubla.com");
+        env::remove_var(ENV_FINDINGS_REPORT_TEAMS_URL);
+        let maybe_configuration = Configuration::load();
+        assert_eq!(maybe_configuration.is_some(), true);
+        let configuration = maybe_configuration.unwrap();
+        assert_eq!(configuration.findings_report_teams_url.is_none(), true);
     }
 
     #[test]
@@ -63,6 +80,7 @@ mod tests {
         // if environment variable is not set, the remove_var can panic.
         env::set_var(ENV_DEFECT_DOJO_TOKEN, "123456");
         env::set_var(ENV_DEFECT_DOJO_URL, "https://www.blabla.com");
+        env::set_var(ENV_FINDINGS_REPORT_TEAMS_URL, "https://www.blubla.com");
         env::remove_var(ENV_DEFECT_DOJO_TOKEN);
         assert_eq!(Configuration::load().is_none(), true)
     }
