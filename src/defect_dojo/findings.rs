@@ -59,6 +59,7 @@ impl Findings {
                 ("not_tag", "suppressed"),
                 ("limit", "500"),
                 ("is_mitigated", "false"),
+                ("risk_accepted", "false"),
             ])
             .send()
             .await?
