@@ -16,8 +16,13 @@ pub struct Findings {
 pub struct Finding {
     pub id: u32,
     #[serde(deserialize_with = "deserialize_null_default")]
-    pub cve: String,
+    pub vulnerability_ids: Vec<VulnerabilityId>,
     pub severity: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct VulnerabilityId {
+    pub vulnerability_id: String,
 }
 
 fn deserialize_null_default<'de, D, T>(deserializer: D) -> Result<T, D::Error>
