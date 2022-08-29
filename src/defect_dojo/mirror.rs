@@ -62,7 +62,7 @@ impl DefectDojo {
         let mut cve_without_duplicate = all_cve
             .iter()
             .cloned()
-            .map(|it| it.cve)
+            .map(|it| it.vulnerability_ids[0].vulnerability_id.clone())
             .collect::<Vec<String>>();
         cve_without_duplicate.sort();
         cve_without_duplicate.dedup();
@@ -104,11 +104,11 @@ impl DefectDojo {
         findings_summary
     }
 
-    fn retrieve_severity(findings: &[Finding], cve: &str) -> String {
+    fn retrieve_severity(findings: &[Finding], vulnerability_id: &str) -> String {
         findings
             .iter()
             .cloned()
-            .filter(|finding| finding.cve == cve)
+            .filter(|finding| finding.vulnerability_ids[0].vulnerability_id == vulnerability_id)
             .collect::<Vec<Finding>>()
             .first()
             .unwrap()
@@ -215,6 +215,7 @@ impl DefectDojo {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::defect_dojo::findings::VulnerabilityId;
 
     #[test]
     fn remove_duplicates_should_correctly_remove_duplicates() {
@@ -308,21 +309,27 @@ mod tests {
         }]
     }
 
+    fn default_vulnerability_ids(id: &str) -> Vec<VulnerabilityId> {
+        vec![VulnerabilityId {
+            vulnerability_id: id.to_string(),
+        }]
+    }
+
     fn default_findings_list() -> Vec<Finding> {
         vec![
             Finding {
                 id: 0,
-                cve: String::from("CVE-0000-1"),
+                vulnerability_ids: default_vulnerability_ids("CVE-0000-1"),
                 severity: String::from("High"),
             },
             Finding {
                 id: 1,
-                cve: String::from("CVE-0000-1"),
+                vulnerability_ids: default_vulnerability_ids("CVE-0000-1"),
                 severity: String::from("High"),
             },
             Finding {
                 id: 2,
-                cve: String::from("CVE-0000-2"),
+                vulnerability_ids: default_vulnerability_ids("CVE-0000-2"),
                 severity: String::from("Critical"),
             },
         ]

@@ -29,7 +29,8 @@ impl ProductSummary {
         self.findings
             .clone()
             .into_iter()
-            .filter(|it| it.cve == cve)
+            .filter(|it| it.vulnerability_ids.len() > 0)
+            .filter(|it| it.vulnerability_ids[0].vulnerability_id == cve)
             .count()
             > 0
     }
@@ -43,7 +44,8 @@ impl ProductSummary {
             .findings
             .iter()
             .cloned()
-            .map(|it| it.cve)
+            .filter(|it| it.vulnerability_ids.len() > 0)
+            .map(|it| it.vulnerability_ids[0].vulnerability_id.clone())
             .collect::<Vec<String>>();
         list_cve.sort();
         list_cve.dedup();
@@ -53,11 +55,11 @@ impl ProductSummary {
                 .findings
                 .clone()
                 .into_iter()
-                .filter(|f| f.cve == it)
+                .filter(|f| f.vulnerability_ids[0].vulnerability_id == it)
                 .collect::<Vec<Finding>>();
             findings.push(Finding {
                 id: finding[0].id,
-                cve: finding[0].cve.clone(),
+                vulnerability_ids: finding[0].vulnerability_ids.clone(),
                 severity: finding[0].severity.clone(),
             })
         });
@@ -68,6 +70,7 @@ impl ProductSummary {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::defect_dojo::findings::VulnerabilityId;
 
     #[test]
     fn cve_high_should_return_correct_number_of_cve() {
@@ -94,7 +97,7 @@ mod tests {
         let findings_without_duplicate = default_product_summary().cve_without_duplicates();
         let cve_duplicated_count = findings_without_duplicate
             .iter()
-            .map(|it| it.cve.clone())
+            .map(|it| it.vulnerability_ids[0].vulnerability_id.clone())
             .filter(|it| it == "CVE-SAMPLE-0001")
             .count();
         assert_eq!(cve_duplicated_count, 1)
@@ -109,36 +112,42 @@ mod tests {
         }
     }
 
+    fn default_vulnerability_ids(id: &str) -> Vec<VulnerabilityId> {
+        vec![VulnerabilityId {
+            vulnerability_id: id.to_string(),
+        }]
+    }
+
     fn default_findings_list() -> Vec<Finding> {
         vec![
             Finding {
                 id: 0,
-                cve: String::from("CVE-SAMPLE-0001"),
+                vulnerability_ids: default_vulnerability_ids("CVE-SAMPLE-0001"),
                 severity: String::from("High"),
             },
             Finding {
                 id: 1,
-                cve: String::from("CVE-SAMPLE-0002"),
+                vulnerability_ids: default_vulnerability_ids("CVE-SAMPLE-0002"),
                 severity: String::from("Critical"),
             },
             Finding {
                 id: 2,
-                cve: String::from("CVE-SAMPLE-0003"),
+                vulnerability_ids: default_vulnerability_ids("CVE-SAMPLE-0003"),
                 severity: String::from("High"),
             },
             Finding {
                 id: 3,
-                cve: String::from("CVE-SAMPLE-0004"),
+                vulnerability_ids: default_vulnerability_ids("CVE-SAMPLE-0004"),
                 severity: String::from("High"),
             },
             Finding {
                 id: 4,
-                cve: String::from("CVE-SAMPLE-0005"),
+                vulnerability_ids: default_vulnerability_ids("CVE-SAMPLE-0005"),
                 severity: String::from("Critical"),
             },
             Finding {
                 id: 5,
-                cve: String::from("CVE-SAMPLE-0001"),
+                vulnerability_ids: default_vulnerability_ids("CVE-SAMPLE-0001"),
                 severity: String::from("High"),
             },
         ]
