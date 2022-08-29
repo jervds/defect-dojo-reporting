@@ -58,7 +58,11 @@ impl Engagements {
         let body = client
             .get(url)
             .header(AUTHORIZATION, format!("Token {}", config.defect_dojo_token))
-            .query(&[("limit", "500"), ("version", tag)])
+            .query(&[
+                ("limit", "500"),
+                ("version", tag),
+                ("name", "Security Scans"),
+            ])
             .send()
             .await?
             .text()
