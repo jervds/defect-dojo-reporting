@@ -19,18 +19,17 @@ async fn main() -> anyhow::Result<()> {
     let product_summary = dojo.generate_product_summary();
     let cve_summary = dojo.generate_cve_summary(&product_summary);
 
-    product_summary.iter().cloned().for_each(|it| {
+    product_summary.clone().into_iter().for_each(|it| {
         println!(
-            "{};{};{};{};{}",
+            "{};{};{};{}",
             it.name,
             it.last_scan_date,
-            it.total_cve(),
             it.cve_critical(),
             it.cve_high()
         );
     });
 
-    cve_summary.iter().clone().for_each(|it| {
+    cve_summary.clone().into_iter().for_each(|it| {
         println!("{};{};{}", it.finding, it.severity, it.impacted_projects);
     });
 

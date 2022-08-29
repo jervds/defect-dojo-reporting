@@ -29,22 +29,18 @@ impl ProductSummary {
         self.findings
             .clone()
             .into_iter()
-            .filter(|it| it.vulnerability_ids.len() > 0)
+            .filter(|it| !it.vulnerability_ids.is_empty())
             .filter(|it| it.vulnerability_ids[0].vulnerability_id == cve)
             .count()
             > 0
     }
 
-    pub fn total_cve(&self) -> usize {
-        self.findings.len()
-    }
-
     pub fn cve_without_duplicates(&self) -> Vec<Finding> {
         let mut list_cve = self
             .findings
-            .iter()
-            .cloned()
-            .filter(|it| it.vulnerability_ids.len() > 0)
+            .clone()
+            .into_iter()
+            .filter(|it| !it.vulnerability_ids.is_empty())
             .map(|it| it.vulnerability_ids[0].vulnerability_id.clone())
             .collect::<Vec<String>>();
         list_cve.sort();
@@ -96,7 +92,7 @@ mod tests {
     fn cve_without_duplicate_should_remove_duplicates() {
         let findings_without_duplicate = default_product_summary().cve_without_duplicates();
         let cve_duplicated_count = findings_without_duplicate
-            .iter()
+            .into_iter()
             .map(|it| it.vulnerability_ids[0].vulnerability_id.clone())
             .filter(|it| it == "CVE-SAMPLE-0001")
             .count();

@@ -13,7 +13,7 @@ Configuration loaded from environment variables:
 Currently, the output is only at log levels. It is structured as following:
 1. A first bunch of data is generated, with a view per product:
 ```shell
-product_name;last_scan_date;total_cve;cve_critical;cve_critical
+product_name;last_scan_date;cve_critical;cve_high
 ```
 2. A second bunch of data is generated, containing a view per CVE
 ```shell
