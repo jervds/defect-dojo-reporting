@@ -37,7 +37,7 @@ impl DefectDojo {
 
     pub fn generate_product_summary(&self) -> Vec<ProductSummary> {
         let mut summary: Vec<ProductSummary> = Vec::new();
-        self.products.iter().for_each(|it| {
+        self.products.clone().into_iter().for_each(|it| {
             summary.push(ProductSummary {
                 name: it.name.clone(),
                 version: self.retrieve_version_for(it.id),
